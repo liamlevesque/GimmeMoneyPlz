@@ -3,7 +3,7 @@
     <div class="tasks" v-if="tasks.length > 0">
       <div class="task task-header">
         <div><span class="name">Task</span></div>
-        <div><span class="rate">Rate</span></div>
+        <div><span class="rate">Hourly Rate</span></div>
         <div><span class="hours">Hours</span></div>
         <div>
           <button class="negative minimal remove hidden">remove</button>
