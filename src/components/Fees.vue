@@ -1,0 +1,109 @@
+<template>
+  <div>
+    <div class="tasks" v-if="fees.length > 0">
+      <div class="task-header">
+        <div><span class="name">Fee</span></div>
+        <div><span class="name">Fee Type</span></div>
+        <div><span class="hours">Cost</span></div>
+        <div>
+          <button class="negative minimal remove hidden">remove</button>
+        </div>
+      </div>
+      <div v-for="fee in fees" :key="fee.id" class="itemrow task">
+        <input
+          type="text"
+          class="name"
+          v-model="fee.name"
+          @focus="selectAllInput($event);"
+          :ref="fee.id"
+        />
+        <select class="type" type="number" v-model="fee.type">
+          <option
+            v-for="(feetype, i) in feetypes"
+            :key="i"
+            :value="feetype.type"
+            >{{ feetype.name }}</option
+          >
+        </select>
+        <input type="number" class="hours" v-model="fee.amount" />
+        <button class="negative minimal remove" @click="removeFee(fee.id);">
+          remove
+        </button>
+      </div>
+    </div>
+    <div class="summary-row">
+      <div><button @click="addFee">Add Fee</button></div>
+      <div v-if="fees.length > 0">
+        <div class="t-right">Total Fees = ${{ formatMoney(totalFees) }}</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { formatMoney } from "../lib/helpers";
+import { selectAll } from "../lib/mixins";
+
+export default {
+  name: "Fees",
+  mixins: [selectAll],
+  props: {
+    subTotal: Number
+  },
+  data() {
+    return {
+      fees: [],
+      feetypes: [
+        {
+          type: "percent",
+          name: "Percentage"
+        },
+        {
+          type: "fixed",
+          name: "Fixed Price"
+        }
+      ]
+    };
+  },
+  computed: {
+    totalFees() {
+      let fees = this.fees.reduce((total, current) => {
+        if (current.type === "percent")
+          return (total += (parseFloat(current.amount) / 100) * this.subTotal);
+        else return (total += parseInt(current.amount, 10));
+      }, 0);
+      return fees;
+    }
+  },
+  watch: {
+    totalFees: function(update) {
+      this.$emit("updatedFees", update);
+    }
+  },
+  methods: {
+    formatMoney,
+    addFee() {
+      let newFee = {
+        id: new Date().getTime(),
+        name: "Fee Name",
+        amount: 0,
+        type: "percent"
+      };
+      this.fees.push(newFee);
+      this.$nextTick(function() {
+        this.$refs[newFee.id][0].focus();
+      });
+    },
+    removeFee(id) {
+      this.fees = this.fees.filter(fee => fee.id !== id);
+    }
+  }
+};
+</script>
+
+<style lang="scss">
+.fee-inputs {
+  display: grid;
+  grid-template-columns: 1fr 20% 20%;
+}
+</style>
