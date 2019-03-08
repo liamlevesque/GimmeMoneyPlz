@@ -14,7 +14,7 @@
         </ul>
         <button @click="createNewInvoice">+ New</button>
       </div>
-      <div class="page">
+      <div class="page" :class="{'s-loading': isAddingNewInvoice }">
         <header class="invoice-header">
           <div>
             <h1 contenteditable="true" @focus="selectAll($event)" class="editableValue">Company Name</h1>
@@ -102,6 +102,7 @@ import Tasks from "./components/Tasks";
 import dayjs from "dayjs";
 import { formatMoney } from "./lib/helpers";
 import { selectAll } from "./lib/mixins";
+import { setTimeout } from "timers";
 
 export default {
   name: "App",
@@ -150,10 +151,18 @@ export default {
       this.savingInvoice = false;
     },
     loadInvoice(invoiceId) {
-      this.$store.dispatch("loadInvoice", invoiceId);
+      this.isAddingNewInvoice = true;
+      setTimeout(() => {
+        this.$store.dispatch("loadInvoice", invoiceId);
+        this.isAddingNewInvoice = false;
+      }, 500);
     },
     createNewInvoice() {
-      this.$store.dispatch("createNewInvoice");
+      this.isAddingNewInvoice = true;
+      setTimeout(() => {
+        this.$store.dispatch("createNewInvoice");
+        this.isAddingNewInvoice = false;
+      }, 500);
     },
     updateInvoice() {
       this.$store.dispatch("updateInvoice");
@@ -163,6 +172,7 @@ export default {
     return {
       date: dayjs().format("D MMMM YYYY"),
       invoiceName: "",
+      isAddingNewInvoice: false,
       savingInvoice: false,
       wzrdz: {
         name: "My Name",
@@ -191,6 +201,7 @@ $blue: #0619ff;
 .body {
   display: grid;
   grid-template-columns: auto 1fr;
+  overflow-x: hidden;
 }
 
 .savedInvoices {
@@ -215,6 +226,11 @@ $blue: #0619ff;
   background: #ffffff;
   box-shadow: 0 24px 30px 0 rgba(74, 144, 226, 0.25),
     0 24px 30px 0 rgba(0, 0, 0, 0.5);
+  transition: transform 0.5s ease-in-out;
+
+  &.s-loading {
+    transform: translate(200%, 10%);
+  }
 }
 
 footer {
