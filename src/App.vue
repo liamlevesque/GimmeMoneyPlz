@@ -1,19 +1,22 @@
 <template>
   <div id="app">
+    <div class="page">
     <header class="invoice-header">
       <div>
-        <h1 contenteditable="true">Company Name</h1>
+        <h1 contenteditable="true" @focus="selectAll($event)" class="editableValue">Company Name</h1>
         <h4>Invoice</h4>
       </div>
-      <h5 class="t-right" contenteditable="true">{{ date }}</h5>
+      <div>
+        <h5 class="t-right editableValue" contenteditable="true" @focus="selectAll($event)">{{ date }}</h5>
+      </div>
       <Contact :label="'From'" /> <Contact :label="'To'" />
     </header>
 
-    <h2 contenteditable="true">Project Name</h2>
+    <h2 contenteditable="true" @focus="selectAll($event)" class="editableValue">Project Name</h2>
     <div class="stats">
       <div class="stat">
         ${{ formatMoney(subTotal) }} <label>Subtotal</label>
-      </div>
+      </div> 
       <div class="stat">+</div>
       <div class="stat">
         ${{ formatMoney(totalFees) }} <label>Total Fees</label>
@@ -35,6 +38,13 @@
         <h2>Total Cost = ${{ formatMoney(invoiceTotal) }}</h2>
       </div>
     </div>
+    </div>
+    <footer>
+      <div class="footer-actions">
+        <span>Keeping it simple. Print this to a PDF or give it to the client face to face, old fashion stylez.</span>
+        <button @click="print">Print</button>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -44,6 +54,7 @@ import Fees from "./components/Fees";
 import Tasks from "./components/Tasks";
 import dayjs from "dayjs";
 import { formatMoney } from "./lib/helpers";
+import { selectAll } from "./lib/mixins";
 
 export default {
   name: "App",
@@ -52,6 +63,7 @@ export default {
     Fees,
     Tasks
   },
+  mixins: [selectAll],
   computed: {
     invoiceTotal() {
       return this.subTotal + this.totalFees;
@@ -67,6 +79,9 @@ export default {
     },
     updateFees(value) {
       this.totalFees = value;
+    },
+    print(){
+      window.print();
     }
   },
   data() {
@@ -95,17 +110,35 @@ export default {
   font-family: "Space Mono", monospace;
   text-align: left;
   color: black;
-  margin-top: 40px;
+}
+
+.page{
   max-width: 1000px;
-  margin: 40px auto;
+  margin: 40px auto 160px;
   padding: 40px;
   background: #ffffff;
   box-shadow: 0 24px 30px 0 rgba(74, 144, 226, 0.25),
     0 24px 30px 0 rgba(0, 0, 0, 0.5);
 }
 
-h1,
-h4 {
+footer{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: lightgrey;
+  padding: 16px;
+
+  .footer-actions{
+    display: grid;
+    grid-template-columns: 1fr auto;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+}
+
+h1, h2, h3,
+h4,h5,h6 {
   margin-top: 0px;
   margin-bottom: 0px;
 }
@@ -157,6 +190,11 @@ button {
     background-color: $blue;
     color: white;
   }
+
+  &:focus{
+    --bscolor: currentColor;
+    box-shadow: 2px 2px 2px var(--bscolor);
+  }
 }
 
 input {
@@ -193,10 +231,13 @@ select {
 }
 
 .editableValue {
-  background-color: lightgrey;
   margin-bottom: 4px;
   outline: none;
   padding: 4px;
+
+  &:hover{
+    background-color: lightgrey;
+  }
 
   &:focus {
     background-color: rgba($blue, 0.2);
@@ -213,6 +254,7 @@ hr {
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto auto;
   grid-gap: 16px;
+  margin-bottom: 16px;
   border-bottom: 1px solid lightgrey;
 }
 
@@ -277,11 +319,6 @@ hr {
 
   & > * {
     padding: 16px;
-
-    &[contenteditable="true"]:focus {
-      outline: none;
-      background-color: rgba($blue, 0.2);
-    }
   }
 
   .hours,
@@ -310,8 +347,15 @@ hr {
 
   #app {
     margin: 4mm 12mm;
+  }
+
+  .page{
     box-shadow: none;
     padding: 0;
+  }
+  
+  footer{
+    display: none;
   }
 }
 </style>
