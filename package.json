@@ -13,6 +13,14 @@
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"
   },
+  "devServer": {
+    "compress": true,
+    "inline": true,
+    "port": "8080",
+    "allowedHosts": [
+        ".now.sh"
+    ]
+  },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.4.0",
     "@vue/cli-plugin-eslint": "^3.4.0",
