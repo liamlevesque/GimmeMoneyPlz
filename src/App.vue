@@ -27,7 +27,7 @@
       </div>
     </div>
 
-    <Tasks @updatedSubTotal="updateSubtotal" @updatedHours="updateHours" />
+    <Tasks/>
 
     <Fees :subTotal="subTotal" @updatedFees="updateFees" />
 
@@ -65,18 +65,21 @@ export default {
   },
   mixins: [selectAll],
   computed: {
+    totalHours() {
+      return this.$store.getters["totalHours"]
+    },
+    subTotal() {
+      return this.$store.getters["subTotal"]
+    },
+    totalFees() {
+      return this.$store.getters["totalFees"]
+    },
     invoiceTotal() {
       return this.subTotal + this.totalFees;
     }
   },
   methods: {
     formatMoney,
-    updateHours(value) {
-      this.totalHours = value;
-    },
-    updateSubtotal(value) {
-      this.subTotal = value;
-    },
     updateFees(value) {
       this.totalFees = value;
     },
@@ -87,10 +90,6 @@ export default {
   data() {
     return {
       date: dayjs().format("D MMMM YYYY"),
-      hourlyRate: 80,
-      totalFees: 0,
-      totalHours: 0,
-      subTotal: 0,
       wzrdz: {
         name: "My Name",
         email: "myemail@email.com"

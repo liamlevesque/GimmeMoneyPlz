@@ -52,7 +52,6 @@ export default {
   },
   data() {
     return {
-      fees: [],
       feetypes: [
         {
           type: "percent",
@@ -66,18 +65,11 @@ export default {
     };
   },
   computed: {
+    fees() {
+      return this.$store.getters["fees"]
+    },
     totalFees() {
-      let fees = this.fees.reduce((total, current) => {
-        if (current.type === "percent")
-          return (total += (parseFloat(current.amount) / 100) * this.subTotal);
-        else return (total += parseInt(current.amount, 10));
-      }, 0);
-      return fees;
-    }
-  },
-  watch: {
-    totalFees: function(update) {
-      this.$emit("updatedFees", update);
+      return this.$store.getters["totalFees"]
     }
   },
   methods: {
@@ -89,13 +81,13 @@ export default {
         amount: 0,
         type: "percent"
       };
-      this.fees.push(newFee);
+      this.$store.dispatch("addFee",newFee);
       this.$nextTick(function() {
         this.$refs[newFee.id][0].focus();
       });
     },
     removeFee(id) {
-      this.fees = this.fees.filter(fee => fee.id !== id);
+      this.$store.dispatch("removeFee",id);
     }
   }
 };

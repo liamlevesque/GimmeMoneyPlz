@@ -53,37 +53,18 @@ export default {
   mixins: [selectAll],
   data() {
     return {
-      tasks: [
-        {
-          id: new Date().getTime(),
-          name: "Task Name",
-          rate: 0,
-          hours: 0
-        }
-      ]
+      
     };
   },
   computed: {
+    tasks(){
+      return this.$store.getters["tasks"]
+    },
     totalHours() {
-      return this.tasks.reduce(
-        (total, current) => (total += parseInt(current.hours, 10)),
-        0
-      );
+      return this.$store.getters["totalHours"]
     },
     subTotal() {
-      return this.tasks.reduce(
-        (total, current) =>
-          (total += parseInt(current.hours, 10) * parseInt(current.rate, 10)),
-        0
-      );
-    }
-  },
-  watch: {
-    totalHours: function(update) {
-      this.$emit("updatedHours", update);
-    },
-    subTotal: function(update) {
-      this.$emit("updatedSubTotal", update);
+      return this.$store.getters["subTotal"]
     }
   },
   methods: {
@@ -95,13 +76,13 @@ export default {
         rate: 0,
         hours: 0
       };
-      this.tasks.push(newTask);
+      this.$store.dispatch("addTask", newTask);
       this.$nextTick(function() {
         this.$refs[newTask.id][0].focus();
       });
     },
     removeTask(id) {
-      this.tasks = this.tasks.filter(task => task.id !== id);
+      this.$store.dispatch("removeTask", id);
     }
   }
 };
