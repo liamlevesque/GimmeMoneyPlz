@@ -1,20 +1,11 @@
 <template>
   <div id="app">
-    <div class="body">
-      <div class="savedInvoices" v-if="invoices.length > 0">
-        <h4>Saved Invoices</h4>
-        <ul class="invoices">
-          <li
-            class="invoice"
-            v-for="(invoice,i) in invoices"
-            :key="i"
-            @click="loadInvoice(invoice.id)"
-            :class="{'s-active':invoice.id === activeInvoice}"
-          >{{invoice.name}}</li>
-        </ul>
-        <button @click="createNewInvoice">+ New</button>
-      </div>
-      <div class="page" :class="{'s-loading': isAddingNewInvoice }">
+    <div class="sidebar">
+      <Sidebar :showingSidebar="showingSidebar"/>
+    </div>
+
+    <div class="page-scroll" :class="{'s-sidebar': showingSidebar}">
+      <div class="page" :class="{'s-loading': isAddingNewInvoice}">
         <header class="invoice-header">
           <div>
             <h1 contenteditable="true" @focus="selectAll($event)" class="editableValue">Company Name</h1>
@@ -67,31 +58,42 @@
             <h2>Total Cost = ${{ formatMoney(invoiceTotal) }}</h2>
           </div>
         </div>
+
+        <div
+          class="payment-instructions"
+          contenteditable="true"
+          @focus="selectAll($event)"
+        >Payment is due within 30 days of receiving this invoice.
+          <br>Payment can be sent via interac money transfer to the e-mail address above.
+        </div>
+        <footer>
+          <div class="footer-actions">
+            <button class="positive" v-if="activeInvoice" @click="updateInvoice">Save Changes</button>
+            <button
+              class="positive"
+              @click="toggleSaveInvoice"
+              v-if="!savingInvoice && !activeInvoice"
+            >Save for later</button>
+            <div class="saving" v-if="savingInvoice">
+              <input
+                type="text"
+                v-model="invoiceName"
+                class="oulined"
+                placeholder="Name for the invoice"
+              >
+              <button class="positive" @click="saveInvoice">Save</button>
+            </div>
+            <span></span>
+            <!-- <span>Keeping it simple. Print this to a PDF or give it to the client face to face, old fashion stylez.</span> -->
+            <div>
+              <button @click="print">Print</button>
+            </div>
+          </div>
+        </footer>
       </div>
+      <div class="sidebar-open-click-overlay" @click="toggleSidebar" v-if="showingSidebar"></div>
+      <button class="menu-button" @click="toggleSidebar">{{ showingSidebar ? 'Hide' : 'Show' }} Menu</button>
     </div>
-    <footer>
-      <div class="footer-actions">
-        <button class="positive" v-if="activeInvoice" @click="updateInvoice">Save Changes</button>
-        <button
-          class="positive"
-          @click="toggleSaveInvoice"
-          v-if="!savingInvoice && !activeInvoice"
-        >Save for later</button>
-        <div class="saving" v-if="savingInvoice">
-          <input
-            type="text"
-            v-model="invoiceName"
-            class="oulined"
-            placeholder="Name for the invoice"
-          >
-          <button class="positive" @click="saveInvoice">Save</button>
-        </div>
-        <span>Keeping it simple. Print this to a PDF or give it to the client face to face, old fashion stylez.</span>
-        <div>
-          <button @click="print">Print</button>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
@@ -99,6 +101,7 @@
 import Contact from "./components/Contact";
 import Fees from "./components/Fees";
 import Tasks from "./components/Tasks";
+import Sidebar from "./components/Sidebar";
 import dayjs from "dayjs";
 import { formatMoney } from "./lib/helpers";
 import { selectAll } from "./lib/mixins";
@@ -109,7 +112,8 @@ export default {
   components: {
     Contact,
     Fees,
-    Tasks
+    Tasks,
+    Sidebar
   },
   mixins: [selectAll],
   mounted: function() {
@@ -127,9 +131,6 @@ export default {
     },
     invoiceTotal() {
       return this.subTotal + this.totalFees;
-    },
-    invoices() {
-      return this.$store.getters["invoices"];
     },
     activeInvoice() {
       return this.$store.getters["activeInvoice"];
@@ -150,22 +151,11 @@ export default {
       this.$store.dispatch("saveInvoice", this.invoiceName);
       this.savingInvoice = false;
     },
-    loadInvoice(invoiceId) {
-      this.isAddingNewInvoice = true;
-      setTimeout(() => {
-        this.$store.dispatch("loadInvoice", invoiceId);
-        this.isAddingNewInvoice = false;
-      }, 500);
-    },
-    createNewInvoice() {
-      this.isAddingNewInvoice = true;
-      setTimeout(() => {
-        this.$store.dispatch("createNewInvoice");
-        this.isAddingNewInvoice = false;
-      }, 500);
-    },
     updateInvoice() {
       this.$store.dispatch("updateInvoice");
+    },
+    toggleSidebar() {
+      this.showingSidebar = !this.showingSidebar;
     }
   },
   data() {
@@ -174,6 +164,7 @@ export default {
       invoiceName: "",
       isAddingNewInvoice: false,
       savingInvoice: false,
+      showingSidebar: false,
       wzrdz: {
         name: "My Name",
         email: "myemail@email.com"
@@ -188,39 +179,72 @@ export default {
 </script>
 
 <style lang="scss">
+@import "./scss/global";
 @import url("https://fonts.googleapis.com/css?family=Space+Mono:400,700");
-
-$blue: #0619ff;
 
 #app {
   font-family: "Space Mono", monospace;
   text-align: left;
   color: black;
-}
-
-.body {
+  width: 100vw;
+  min-width: 0;
+  height: 100vh;
   display: grid;
   grid-template-columns: auto 1fr;
+  overflow: hidden;
+}
+
+.menu-button {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+
+  @include breakpoint(l) {
+    display: none;
+  }
+}
+
+.sidebar {
+  width: 0;
+  overflow: visible;
+
+  @include breakpoint(l) {
+    width: auto;
+  }
+}
+
+.sidebar-open-click-overlay {
+  position: fixed;
+  top: 0;
+  left: 200px;
+  width: calc(100% - 200px);
+  height: 100%;
+  background-color: rgba(white, 0.4);
+  cursor: pointer;
+
+  @include breakpoint(l) {
+    display: none;
+  }
+}
+
+.page-scroll {
   overflow-x: hidden;
-}
+  overflow-y: auto;
+  padding: 20px 20px 0;
+  transition: transform 0.2s ease-in-out;
 
-.savedInvoices {
-  width: 200px;
-}
-
-.invoices {
-  margin-bottom: 16px;
-}
-
-.invoice {
-  &.s-active {
-    color: $blue;
+  &.s-sidebar .page {
+    transform: translateX(200px) scale(0.9);
+    opacity: 0.5;
+    pointer-events: none;
   }
 }
 
 .page {
   grid-column: 2 / 3;
   max-width: 1000px;
+  min-width: 0;
+  width: 100%;
   margin: 40px auto 160px;
   padding: 40px;
   background: #ffffff;
@@ -231,148 +255,6 @@ $blue: #0619ff;
   &.s-loading {
     transform: translate(200%, 10%);
   }
-}
-
-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: lightgrey;
-  padding: 16px;
-
-  .footer-actions {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    max-width: 1000px;
-    margin: 0 auto;
-    grid-gap: 16px;
-  }
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin-top: 0px;
-  margin-bottom: 0px;
-}
-
-.t-right {
-  text-align: right;
-}
-
-ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-
-button,
-input,
-select {
-  font-family: "Space Mono";
-  font-size: 1rem;
-  font-weight: 700;
-  appearance: none;
-  outline: none;
-}
-
-button {
-  border: 2px solid $blue;
-  padding: 4px 16px;
-  color: $blue;
-  cursor: pointer;
-
-  &.negative {
-    color: red;
-    border-color: red;
-    &:hover {
-      background-color: red;
-    }
-  }
-
-  &.positive {
-    color: green;
-    border-color: green;
-
-    &:hover {
-      background-color: green;
-    }
-  }
-
-  &.minimal {
-    border-color: transparent;
-  }
-
-  &:hover {
-    background-color: $blue;
-    color: white;
-  }
-
-  &:focus {
-    --bscolor: currentColor;
-    box-shadow: 2px 2px 2px var(--bscolor);
-  }
-}
-
-input {
-  border: none;
-
-  &:focus {
-    background-color: rgba($blue, 0.2);
-  }
-
-  &.oulined {
-    border: 2px solid black;
-    padding: 8px;
-  }
-}
-
-::selection {
-  background: $blue;
-  color: white;
-}
-
-select {
-  border: none;
-  border-radius: 0;
-  -webkit-appearance: none;
-  -webkit-border-radius: 0px;
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23000000'><polygon points='0,0 100,0 50,50'/></svg>")
-    no-repeat;
-  background-size: 12px;
-  background-position: calc(100% - 10px) calc(50% + 3px);
-  background-repeat: no-repeat;
-
-  &:focus {
-    background-color: rgba($blue, 0.2);
-  }
-}
-
-.hidden {
-  visibility: hidden;
-}
-
-.editableValue {
-  margin-bottom: 4px;
-  outline: none;
-  padding: 4px;
-
-  &:hover {
-    background-color: lightgrey;
-  }
-
-  &:focus {
-    background-color: rgba($blue, 0.2);
-  }
-}
-
-hr {
-  background-color: transparent;
-  border-bottom: 2px solid black;
 }
 
 .invoice-header {
@@ -461,6 +343,26 @@ hr {
   }
 }
 
+.payment-instructions {
+  margin-bottom: 16px;
+}
+
+footer {
+  background-color: lightgrey;
+  padding: 16px;
+  margin: 0 -40px -40px -40px;
+  position: sticky;
+  bottom: 0;
+
+  .footer-actions {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    max-width: 1000px;
+    margin: 0 auto;
+    grid-gap: 16px;
+  }
+}
+
 @media print {
   button {
     display: none;
@@ -480,7 +382,8 @@ hr {
     padding: 0;
   }
 
-  footer {
+  footer,
+  .savedInvoices {
     display: none;
   }
 }

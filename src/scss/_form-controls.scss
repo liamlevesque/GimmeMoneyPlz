@@ -1,0 +1,85 @@
+button {
+  border: 2px solid $blue;
+  padding: 4px 16px;
+  color: $blue;
+  cursor: pointer;
+
+  &.negative {
+    color: red;
+    border-color: red;
+    &:hover {
+      background-color: red;
+    }
+  }
+
+  &.positive {
+    color: green;
+    border-color: green;
+
+    &:hover {
+      background-color: green;
+    }
+  }
+
+  &.minimal {
+    border-color: transparent;
+  }
+
+  &:hover {
+    background-color: $blue;
+    color: white;
+  }
+
+  &:focus {
+    --bscolor: currentColor;
+    box-shadow: 2px 2px 2px var(--bscolor);
+  }
+}
+
+input {
+  border: none;
+
+  &:focus {
+    background-color: rgba($blue, 0.2);
+  }
+
+  &.oulined {
+    border: 2px solid black;
+    padding: 8px;
+  }
+}
+
+::selection {
+  background: $blue;
+  color: white;
+}
+
+select {
+  border: none;
+  border-radius: 0;
+  -webkit-appearance: none;
+  -webkit-border-radius: 0px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23000000'><polygon points='0,0 100,0 50,50'/></svg>")
+    no-repeat;
+  background-size: 12px;
+  background-position: calc(100% - 10px) calc(50% + 3px);
+  background-repeat: no-repeat;
+
+  &:focus {
+    background-color: rgba($blue, 0.2);
+  }
+}
+
+.editableValue {
+  margin-bottom: 4px;
+  outline: none;
+  padding: 4px;
+
+  &:hover {
+    background-color: lightgrey;
+  }
+
+  &:focus {
+    background-color: rgba($blue, 0.2);
+  }
+}

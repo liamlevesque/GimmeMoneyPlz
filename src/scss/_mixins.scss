@@ -1,0 +1,42 @@
+//BREAKPOINTS
+
+@mixin breakpoint($point) {
+  @if $point == l {
+    @media (min-width: 88em) {
+      @content;
+    }
+  }
+  @if $point == m {
+    @media (min-width: 48em) {
+      @content;
+    }
+  }
+  @if $point == m-max {
+    @media (max-width: 48em) {
+      @content;
+    }
+  } @else if $point == s {
+    @media (min-width: 30.0625em) {
+      @content;
+    }
+  } @else if $point == xs {
+    @media (max-width: 30.0625em) {
+      @content;
+    }
+  }
+}
+
+//VERTICAL BREAKPOINTS
+
+@mixin vbreakpoint($point) {
+  @if $point == med {
+    @media (min-height: 800px) {
+      @content;
+    }
+  }
+  @if $point == large {
+    @media (min-height: 1000px) {
+      @content;
+    }
+  }
+}
