@@ -51,7 +51,7 @@
 
         <Fees :subTotal="subTotal" @updatedFees="updateFees"/>
 
-        <div class="summary-row">
+        <div class="invoice-total-row">
           <div></div>
           <div class="t-right">
             <hr>
@@ -230,8 +230,12 @@ export default {
 .page-scroll {
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 20px 20px 0;
   transition: transform 0.2s ease-in-out;
+  padding: 20px 0 0;
+
+  @include breakpoint(m) {
+    padding: 20px 20px 0;
+  }
 
   &.s-sidebar .page {
     transform: translateX(200px) scale(0.9);
@@ -246,11 +250,15 @@ export default {
   min-width: 0;
   width: 100%;
   margin: 40px auto 160px;
-  padding: 40px;
+  padding: 40px 16px;
   background: #ffffff;
-  box-shadow: 0 24px 30px 0 rgba(74, 144, 226, 0.25),
-    0 24px 30px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 30px 0 rgba(74, 144, 226, 0.25),
+    0 20px 30px 0 rgba(0, 0, 0, 0.5);
   transition: transform 0.5s ease-in-out;
+
+  @include breakpoint(m) {
+    padding: 40px;
+  }
 
   &.s-loading {
     transform: translate(200%, 10%);
@@ -259,11 +267,16 @@ export default {
 
 .invoice-header {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto auto;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto auto auto auto;
   grid-gap: 16px;
   margin-bottom: 16px;
   border-bottom: 1px solid lightgrey;
+
+  @include breakpoint(m) {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+  }
 }
 
 .stats {
@@ -289,7 +302,65 @@ export default {
   }
 }
 
+.summary-row,
+.invoice-total-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 16px;
+  font-weight: 700;
+}
+
+.invoice-total-row {
+  grid-template-columns: 1fr;
+
+  @include breakpoint(m) {
+    grid-template-columns: 1fr auto;
+  }
+}
+
+/////////////////////// TASK AND FEE ROW LAYOUTS //////////////////
+.itemrow {
+  border: 2px solid black;
+  border-bottom-width: 0;
+
+  @include breakpoint(m-max) {
+    margin-bottom: 4px;
+    border-bottom-width: 2px;
+  }
+
+  input {
+    padding: 16px;
+    width: 100%;
+  }
+
+  button {
+    padding: 16px;
+  }
+
+  &:last-child {
+    border-bottom-width: 2px;
+  }
+}
+
+.task-header,
+.task {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: "name name" "a b" ". action";
+  grid-template-rows: auto auto auto;
+
+  @include breakpoint(m) {
+    grid-template-rows: 1fr;
+    grid-template-areas: "name a b action";
+    grid-template-columns: 1fr 20% 20% auto;
+  }
+}
+
 .task-header {
+  @include breakpoint(m-max) {
+    display: none;
+  }
+
   & span {
     display: inline-block;
     background-color: black;
@@ -299,47 +370,49 @@ export default {
   }
 }
 
-.summary-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  padding: 16px;
-  font-weight: 700;
+.name {
+  grid-area: name;
+
+  @include breakpoint(m-max) {
+    border-bottom: 2px solid black;
+  }
 }
 
-.task-header,
-.task {
-  display: grid;
-  grid-template-columns: 1fr 20% 20% auto;
-}
+.rate,
+.cost,
+.hours,
+.type {
+  border-left: 2px solid black;
 
-.fee-inputs {
-  display: grid;
-  grid-template-columns: 1fr 20% 20%;
-}
-
-.fee-inputs > * {
-  padding: 16px;
-}
-
-.itemrow {
-  border: 2px solid black;
-  border-bottom-width: 0;
-
-  & > * {
-    padding: 16px;
+  @include breakpoint(m-max) {
+    border-bottom: 2px solid black;
   }
 
-  .hours,
-  .fee,
-  .rate,
-  .remove,
-  .type {
-    border-left: 2px solid black;
+  input {
     text-align: right;
   }
+}
 
-  &:last-child {
-    border-bottom-width: 2px;
+.rate,
+.cost {
+  grid-area: a;
+
+  @include breakpoint(m-max) {
+    border-left: none !important;
+  }
+}
+
+.hours,
+.type {
+  grid-area: b;
+}
+
+.remove {
+  border-left: 2px solid black;
+  grid-area: action;
+
+  button {
+    border-width: 0;
   }
 }
 

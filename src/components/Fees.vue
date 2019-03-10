@@ -6,7 +6,7 @@
           <span class="name">Fee</span>
         </div>
         <div>
-          <span class="hours">Cost</span>
+          <span class="cost">Cost</span>
         </div>
         <div>
           <span class="name">Fee Type</span>
@@ -16,22 +16,12 @@
         </div>
       </div>
       <div v-for="fee in fees" :key="fee.id" class="itemrow task">
-        <input
-          type="text"
-          class="name"
-          v-model="fee.name"
-          @focus="selectAllInput($event);"
-          :ref="fee.id"
-        >
-        <!-- <select class="type" type="number" v-model="fee.type">
-          <option
-            v-for="(feetype, i) in feetypes"
-            :key="i"
-            :value="feetype.type"
-            >{{ feetype.name }}</option
-          >
-        </select>-->
-        <input type="number" class="hours" v-model="fee.amount">
+        <div class="name">
+          <input type="text" v-model="fee.name" @focus="selectAllInput($event);" :ref="fee.id">
+        </div>
+        <div class="cost">
+          <input type="number" v-model="fee.amount">
+        </div>
         <div class="type">
           <label class="radio-input">
             <input type="radio" value="percent" v-model="fee.type">
@@ -42,7 +32,9 @@
             <span>$</span>
           </label>
         </div>
-        <button class="negative minimal remove" @click="removeFee(fee.id);">remove</button>
+        <div class="remove">
+          <button class="negative minimal" @click="removeFee(fee.id);">remove</button>
+        </div>
       </div>
     </div>
     <div class="summary-row">
@@ -110,6 +102,26 @@ export default {
 </script>
 
 <style lang="scss">
+@include breakpoint(m-max) {
+  .name,
+  .cost {
+    display: grid;
+    grid-template-columns: auto 1fr;
+
+    &:before {
+      background-color: black;
+      color: white;
+      padding: 16px;
+    }
+  }
+  .name:before {
+    content: "Fee";
+  }
+  .cost:before {
+    content: "Cost";
+  }
+}
+
 .type {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -120,11 +132,18 @@ export default {
   color: black;
   cursor: pointer;
   position: relative;
+  display: flex;
+  align-items: stretch;
+  padding: 8px;
 
   span {
     display: block;
     text-align: center;
     user-select: none;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   input {

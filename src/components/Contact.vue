@@ -2,20 +2,8 @@
   <div class="contact">
     <label>{{ label ? label : "" }}</label>
     <div>
-      <div
-        class="editableValue"
-        contenteditable="true"
-        @focus="selectAll($event);"
-      >
-        Name
-      </div>
-      <div
-        class="editableValue"
-        contenteditable="true"
-        @focus="selectAll($event);"
-      >
-        E-mail Address
-      </div>
+      <div class="editableValue" contenteditable="true" @focus="selectAll($event);">Name</div>
+      <div class="editableValue" contenteditable="true" @focus="selectAll($event);">E-mail Address</div>
     </div>
   </div>
 </template>
@@ -36,7 +24,7 @@ export default {
 <style lang="scss">
 .contact {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 40px 1fr;
   grid-gap: 16px;
 }
 
