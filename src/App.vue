@@ -191,7 +191,7 @@ export default {
   height: 100vh;
   display: grid;
   grid-template-columns: auto 1fr;
-  overflow: hidden;
+  //overflow: hidden;
 }
 
 .menu-button {
