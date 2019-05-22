@@ -1,41 +1,61 @@
 <template>
   <div>
-    <div class="tasks" v-if="tasks.length > 0">
-      <div class="task task-header">
-        <div>
-          <span class="name">Task</span>
+    <transition name="addline">
+      <div class="tasks" v-if="tasks.length > 0">
+        <div class="task-header">
+          <div>
+            <span class="name">Task</span>
+          </div>
+          <div>
+            <span class="rate">Hourly Rate</span>
+          </div>
+          <div>
+            <span class="hours">Hours</span>
+          </div>
+          <div>
+            <button class="negative minimal remove hidden">remove</button>
+          </div>
         </div>
-        <div>
-          <span class="rate">Hourly Rate</span>
-        </div>
-        <div>
-          <span class="hours">Hours</span>
-        </div>
-        <div>
-          <button class="negative minimal remove hidden">remove</button>
-        </div>
+        <transition-group tag="div" name="addline">
+          <div v-for="task in tasks" :key="task.id" class="task">
+            <div class="name">
+              <input
+                type="text"
+                v-model="task.name"
+                @focus="selectAllInput($event);"
+                :ref="task.id"
+                placeholder="Describe the task"
+              >
+            </div>
+            <div class="rate">
+              <input
+                type="number"
+                v-model="task.rate"
+                @focus="selectAllInput($event);"
+                placeholder="$/hr"
+              >
+            </div>
+            <div class="hours">
+              <input
+                type="number"
+                v-model="task.hours"
+                @focus="selectAllInput($event);"
+                placeholder="hrs"
+              >
+            </div>
+            <div class="remove">
+              <button class="negative minimal" @click="removeTask(task.id);">remove</button>
+            </div>
+          </div>
+        </transition-group>
       </div>
-      <div v-for="task in tasks" :key="task.id" class="itemrow task">
-        <div class="name">
-          <input type="text" v-model="task.name" @focus="selectAllInput($event);" :ref="task.id">
-        </div>
-        <div class="rate">
-          <input type="number" v-model="task.rate" @focus="selectAllInput($event);">
-        </div>
-        <div class="hours">
-          <input type="number" v-model="task.hours" @focus="selectAllInput($event);">
-        </div>
-        <div class="remove">
-          <button class="negative minimal" @click="removeTask(task.id);">remove</button>
-        </div>
-      </div>
-    </div>
+    </transition>
     <div class="summary-row">
       <div>
         <button @click="addTask">Add Task</button>
       </div>
       <div>
-        <div class="t-right">Total Hours = {{ totalHours }}</div>
+        <div class="t-right">Total Hours = {{ isNaN(totalHours) ? 0 : totalHours }}</div>
         <div class="t-right">Subtotal = ${{ formatMoney(subTotal) }}</div>
       </div>
     </div>
@@ -68,9 +88,9 @@ export default {
     addTask() {
       let newTask = {
         id: new Date().getTime(),
-        name: "Task Name",
-        rate: 0,
-        hours: 0
+        name: null,
+        rate: null,
+        hours: null
       };
       this.$store.dispatch("addTask", newTask);
       this.$nextTick(function() {
@@ -84,7 +104,15 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.task {
+  @include itemrow;
+}
+
+.task-header {
+  @include rowHeader;
+}
+
 @include breakpoint(m-max) {
   .name,
   .rate,

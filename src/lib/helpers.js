@@ -1,4 +1,5 @@
 export function formatMoney(amount) {
+  if (isNaN(amount)) return 0;
   const options = {
     //   style: "currency",
     minimumFractionDigits: 2

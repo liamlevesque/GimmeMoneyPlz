@@ -2,6 +2,22 @@
   text-align: right;
 }
 
+.t-placeholder {
+  color: $grey;
+}
+
+.t-small {
+  font-size: 0.8rem;
+}
+
+.t-large {
+  font-size: 2rem;
+}
+
+.w-100 {
+  width: 100%;
+}
+
 .hidden {
   visibility: hidden;
 }

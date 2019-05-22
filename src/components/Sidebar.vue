@@ -31,28 +31,16 @@ export default {
   },
   methods: {
     loadInvoice(invoiceId) {
-      this.isAddingNewInvoice = true;
-      setTimeout(() => {
-        this.$store.dispatch("loadInvoice", invoiceId);
-        this.isAddingNewInvoice = false;
-      }, 500);
+      this.$store.dispatch("loadInvoice", invoiceId);
     },
     createNewInvoice() {
-      this.isAddingNewInvoice = true;
-      setTimeout(() => {
-        this.$store.dispatch("createNewInvoice");
-        this.isAddingNewInvoice = false;
-      }, 500);
+      this.$store.dispatch("createNewInvoice");
     }
   }
 };
 </script>
 
 <style lang="scss">
-.t-placeholder {
-  color: $grey;
-}
-
 .savedInvoices {
   width: 200px;
   margin-top: 60px;

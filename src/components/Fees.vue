@@ -1,42 +1,52 @@
 <template>
   <div>
-    <div class="tasks" v-if="fees.length > 0">
-      <div class="task-header">
-        <div>
-          <span class="name">Fee</span>
+    <transition name="addline">
+      <div class="fees" v-if="fees.length > 0">
+        <div class="fee-header">
+          <div>
+            <span class="name">Fee</span>
+          </div>
+          <div>
+            <span class="cost">Cost</span>
+          </div>
+          <div>
+            <span class="name">Fee Type</span>
+          </div>
+          <div>
+            <button class="negative minimal remove hidden">remove</button>
+          </div>
         </div>
-        <div>
-          <span class="cost">Cost</span>
-        </div>
-        <div>
-          <span class="name">Fee Type</span>
-        </div>
-        <div>
-          <button class="negative minimal remove hidden">remove</button>
-        </div>
+        <transition-group tag="div" name="addline">
+          <div v-for="fee in fees" :key="fee.id" class="fee">
+            <div class="name">
+              <input
+                type="text"
+                v-model="fee.name"
+                @focus="selectAllInput($event);"
+                :ref="fee.id"
+                placeholder="Describe the fee"
+              >
+            </div>
+            <div class="cost">
+              <input type="number" v-model="fee.amount" placeholder="$ or %">
+            </div>
+            <div class="type">
+              <label class="radio-input">
+                <input type="radio" value="percent" v-model="fee.type">
+                <span>%</span>
+              </label>
+              <label class="radio-input">
+                <input type="radio" value="fixed" v-model="fee.type">
+                <span>$</span>
+              </label>
+            </div>
+            <div class="remove">
+              <button class="negative minimal" @click="removeFee(fee.id);">remove</button>
+            </div>
+          </div>
+        </transition-group>
       </div>
-      <div v-for="fee in fees" :key="fee.id" class="itemrow task">
-        <div class="name">
-          <input type="text" v-model="fee.name" @focus="selectAllInput($event);" :ref="fee.id">
-        </div>
-        <div class="cost">
-          <input type="number" v-model="fee.amount">
-        </div>
-        <div class="type">
-          <label class="radio-input">
-            <input type="radio" value="percent" v-model="fee.type">
-            <span>%</span>
-          </label>
-          <label class="radio-input">
-            <input type="radio" value="fixed" v-model="fee.type">
-            <span>$</span>
-          </label>
-        </div>
-        <div class="remove">
-          <button class="negative minimal" @click="removeFee(fee.id);">remove</button>
-        </div>
-      </div>
-    </div>
+    </transition>
     <div class="summary-row">
       <div>
         <button @click="addFee">Add Fee</button>
@@ -44,6 +54,10 @@
       <div v-if="fees.length > 0">
         <div class="t-right">Total Fees = ${{ formatMoney(totalFees) }}</div>
       </div>
+      <div
+        class="t-placeholder"
+        v-else
+      >Fees are things like taxes or charges that aren't part of your work</div>
     </div>
   </div>
 </template>
@@ -85,8 +99,8 @@ export default {
     addFee() {
       let newFee = {
         id: new Date().getTime(),
-        name: "Fee Name",
-        amount: 0,
+        name: null,
+        amount: null,
         type: "percent"
       };
       this.$store.dispatch("addFee", newFee);
@@ -101,7 +115,15 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
+.fee {
+  @include itemrow;
+}
+
+.fee-header {
+  @include rowHeader;
+}
+
 @include breakpoint(m-max) {
   .name,
   .cost {

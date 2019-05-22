@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import dayjs from "dayjs";
 
 Vue.use(Vuex);
 
@@ -8,20 +9,29 @@ const baseState = {
   tasks: [
     {
       id: new Date().getTime(),
-      name: "Task Name",
-      rate: 0,
-      hours: 0
+      name: null,
+      rate: null,
+      hours: null
     }
   ],
   subTotal: 0,
   totalFees: 0,
-  invoiceTotal: 0
+  invoiceTotal: 0,
+  metadata: {
+    companyName: null,
+    date: dayjs().format("D MMMM YYYY"),
+    invoiceNumber: null,
+    projectName: null,
+    paymentTerms:
+      "Payment is due within 30 days of receiving this invoice. Payment can be sent via interac money transfer to the e-mail address above."
+  }
 };
 
 export default new Vuex.Store({
   state: {
     invoices: [],
     activeInvoice: null,
+    showingSidebar: false,
     ...baseState
   },
   getters: {
@@ -30,6 +40,9 @@ export default new Vuex.Store({
     },
     activeInvoice: state => {
       return state.activeInvoice;
+    },
+    metadata: state => {
+      return state.metadata;
     },
     fees: state => {
       return state.fees;
@@ -57,6 +70,9 @@ export default new Vuex.Store({
             (parseFloat(current.amount) / 100) * getters.subTotal);
         else return (total += parseInt(current.amount, 10));
       }, 0);
+    },
+    showingSidebar: state => {
+      return state.showingSidebar;
     }
   },
   mutations: {
@@ -84,6 +100,8 @@ export default new Vuex.Store({
         activeInvoice: invoiceId,
         ...newInvoice
       });
+
+      this.toggleSidebar();
     },
     saveInvoice(state, invoiceName) {
       //Get the state without the invoices
@@ -124,6 +142,9 @@ export default new Vuex.Store({
         state.activeInvoice,
         JSON.stringify(stateWithoutInvoices)
       );
+    },
+    toggleSidebar(state) {
+      state.showingSidebar = !state.showingSidebar;
     }
   },
   actions: {
@@ -153,6 +174,9 @@ export default new Vuex.Store({
     },
     createNewInvoice(context) {
       context.commit("createNewInvoice");
+    },
+    toggleSidebar(context) {
+      context.commit("toggleSidebar");
     }
   }
 });

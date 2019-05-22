@@ -2,7 +2,8 @@
 
 @mixin breakpoint($point) {
   @if $point == l {
-    @media (min-width: 88em) {
+    @media (min-width: 75em) {
+      //1200px
       @content;
     }
   }
@@ -37,6 +38,106 @@
   @if $point == large {
     @media (min-height: 1000px) {
       @content;
+    }
+  }
+}
+
+@mixin columnTemplates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: "name name" "a b" ". action";
+  grid-template-rows: auto auto auto;
+
+  @include breakpoint(m) {
+    grid-template-rows: 1fr;
+    grid-template-areas: "name a b action";
+    grid-template-columns: 1fr 20% 20% auto;
+  }
+}
+
+@mixin rowHeader {
+  @include columnTemplates();
+
+  @include breakpoint(m-max) {
+    display: none;
+  }
+
+  & span {
+    display: inline-block;
+    background-color: black;
+    -webkit-print-color-adjust: exact;
+    padding: 8px;
+    color: white;
+  }
+}
+
+@mixin itemrow {
+  border: 2px solid black;
+  border-bottom-width: 0;
+
+  @include breakpoint(m-max) {
+    margin-bottom: 4px;
+    border-bottom-width: 2px;
+  }
+
+  @include columnTemplates();
+
+  input {
+    padding: 16px;
+    width: 100%;
+  }
+
+  button {
+    padding: 16px;
+  }
+
+  &:last-child {
+    border-bottom-width: 2px;
+  }
+
+  .name {
+    grid-area: name;
+
+    @include breakpoint(m-max) {
+      border-bottom: 2px solid black;
+    }
+  }
+
+  .rate,
+  .cost,
+  .hours,
+  .type {
+    border-left: 2px solid black;
+
+    @include breakpoint(m-max) {
+      border-bottom: 2px solid black;
+    }
+
+    input {
+      text-align: right;
+    }
+  }
+
+  .rate,
+  .cost {
+    grid-area: a;
+
+    @include breakpoint(m-max) {
+      border-left: none !important;
+    }
+  }
+
+  .hours,
+  .type {
+    grid-area: b;
+  }
+
+  .remove {
+    border-left: 2px solid black;
+    grid-area: action;
+
+    button {
+      border-width: 0;
     }
   }
 }

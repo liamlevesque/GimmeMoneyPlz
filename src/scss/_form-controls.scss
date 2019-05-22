@@ -1,3 +1,14 @@
+button,
+input,
+select,
+textarea {
+  font-family: "Space Mono";
+  font-size: 1rem;
+  font-weight: 700;
+  appearance: none;
+  outline: none;
+}
+
 button {
   border: 2px solid $blue;
   background-color: white;
@@ -37,7 +48,8 @@ button {
   }
 }
 
-input {
+input,
+textarea {
   border: none;
 
   &:focus {
@@ -48,6 +60,10 @@ input {
     border: 2px solid black;
     padding: 8px;
   }
+}
+
+textarea {
+  width: 100%;
 }
 
 ::selection {
@@ -75,6 +91,7 @@ select {
   margin-bottom: 4px;
   outline: none;
   padding: 4px;
+  cursor: text;
 
   &:hover {
     background-color: lightgrey;
@@ -82,5 +99,10 @@ select {
 
   &:focus {
     background-color: rgba($blue, 0.2);
+  }
+
+  &:empty:before {
+    content: attr(data-placeholder);
+    color: $grey;
   }
 }

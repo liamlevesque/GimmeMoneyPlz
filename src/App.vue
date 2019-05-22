@@ -5,92 +5,9 @@
     </div>
 
     <div class="page-scroll" :class="{'s-sidebar': showingSidebar}">
-      <div class="page" :class="{'s-loading': isAddingNewInvoice}">
-        <header class="invoice-header">
-          <div>
-            <h1 contenteditable="true" @focus="selectAll($event)" class="editableValue">Company Name</h1>
-            <h4>
-              Invoice
-              <span
-                class="editableValue"
-                contenteditable="true"
-                @focus="selectAll($event)"
-              >12345</span>
-            </h4>
-          </div>
-          <div>
-            <h5
-              class="t-right editableValue"
-              contenteditable="true"
-              @focus="selectAll($event)"
-            >{{ date }}</h5>
-          </div>
-          <Contact :label="'From'"/>
-          <Contact :label="'To'"/>
-        </header>
-
-        <h2 contenteditable="true" @focus="selectAll($event)" class="editableValue">Project Name</h2>
-        <div class="stats">
-          <div class="stat">
-            ${{ formatMoney(subTotal) }}
-            <label>Subtotal</label>
-          </div>
-          <div class="stat">+</div>
-          <div class="stat">
-            ${{ formatMoney(totalFees) }}
-            <label>Total Fees</label>
-          </div>
-          <div class="stat">=</div>
-          <div class="stat">
-            ${{ formatMoney(invoiceTotal) }}
-            <label>Total Cost</label>
-          </div>
-        </div>
-
-        <Tasks/>
-
-        <Fees :subTotal="subTotal" @updatedFees="updateFees"/>
-
-        <div class="invoice-total-row">
-          <div></div>
-          <div class="t-right">
-            <hr>
-            <h2>Total Cost = ${{ formatMoney(invoiceTotal) }}</h2>
-          </div>
-        </div>
-
-        <div
-          class="payment-instructions"
-          contenteditable="true"
-          @focus="selectAll($event)"
-        >Payment is due within 30 days of receiving this invoice.
-          <br>Payment can be sent via interac money transfer to the e-mail address above.
-        </div>
-        <footer>
-          <div class="footer-actions">
-            <button class="positive" v-if="activeInvoice" @click="updateInvoice">Save Changes</button>
-            <button
-              class="positive"
-              @click="toggleSaveInvoice"
-              v-if="!savingInvoice && !activeInvoice"
-            >Save for later</button>
-            <div class="saving" v-if="savingInvoice">
-              <input
-                type="text"
-                v-model="invoiceName"
-                class="oulined"
-                placeholder="Name for the invoice"
-              >
-              <button class="positive" @click="saveInvoice">Save</button>
-            </div>
-            <span></span>
-            <!-- <span>Keeping it simple. Print this to a PDF or give it to the client face to face, old fashion stylez.</span> -->
-            <div>
-              <button @click="print">Print</button>
-            </div>
-          </div>
-        </footer>
-      </div>
+      <transition name="swingin" appear>
+        <Invoice v-bind:key="activeInvoice" :activeInvoice="activeInvoice"/>
+      </transition>
       <div class="sidebar-open-click-overlay" @click="toggleSidebar" v-if="showingSidebar"></div>
       <button class="menu-button" @click="toggleSidebar">{{ showingSidebar ? 'Hide' : 'Show' }} Menu</button>
     </div>
@@ -98,82 +15,38 @@
 </template>
 
 <script>
-import Contact from "./components/Contact";
-import Fees from "./components/Fees";
-import Tasks from "./components/Tasks";
 import Sidebar from "./components/Sidebar";
-import dayjs from "dayjs";
-import { formatMoney } from "./lib/helpers";
-import { selectAll } from "./lib/mixins";
-import { setTimeout } from "timers";
+import Invoice from "./components/Invoice";
 
 export default {
   name: "App",
   components: {
-    Contact,
-    Fees,
-    Tasks,
+    Invoice,
     Sidebar
   },
-  mixins: [selectAll],
   mounted: function() {
     this.$store.dispatch("loadAllInvoices");
+
+    document.body.ontouchmove = e => {
+      e.preventDefault;
+      return false;
+    };
   },
   computed: {
-    totalHours() {
-      return this.$store.getters["totalHours"];
-    },
-    subTotal() {
-      return this.$store.getters["subTotal"];
-    },
-    totalFees() {
-      return this.$store.getters["totalFees"];
-    },
-    invoiceTotal() {
-      return this.subTotal + this.totalFees;
-    },
     activeInvoice() {
       return this.$store.getters["activeInvoice"];
+    },
+    showingSidebar() {
+      return this.$store.getters["showingSidebar"];
     }
   },
   methods: {
-    formatMoney,
-    updateFees(value) {
-      this.totalFees = value;
-    },
-    print() {
-      window.print();
-    },
-    toggleSaveInvoice() {
-      this.savingInvoice = !this.savingInvoice;
-    },
-    saveInvoice() {
-      this.$store.dispatch("saveInvoice", this.invoiceName);
-      this.savingInvoice = false;
-    },
-    updateInvoice() {
-      this.$store.dispatch("updateInvoice");
-    },
     toggleSidebar() {
-      this.showingSidebar = !this.showingSidebar;
+      this.$store.dispatch("toggleSidebar");
     }
   },
   data() {
-    return {
-      date: dayjs().format("D MMMM YYYY"),
-      invoiceName: "",
-      isAddingNewInvoice: false,
-      savingInvoice: false,
-      showingSidebar: false,
-      wzrdz: {
-        name: "My Name",
-        email: "myemail@email.com"
-      },
-      client: {
-        name: "",
-        email: ""
-      }
-    };
+    return {};
   }
 };
 </script>
@@ -230,8 +103,10 @@ export default {
 .page-scroll {
   overflow-x: hidden;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   transition: transform 0.2s ease-in-out;
   padding: 20px 0 0;
+  display: grid;
 
   @include breakpoint(m) {
     padding: 20px 20px 0;
@@ -241,198 +116,6 @@ export default {
     transform: translateX(200px) scale(0.9);
     opacity: 0.5;
     pointer-events: none;
-  }
-}
-
-.page {
-  grid-column: 2 / 3;
-  max-width: 1000px;
-  min-width: 0;
-  width: 100%;
-  margin: 40px auto 160px;
-  padding: 40px 16px;
-  background: #ffffff;
-  box-shadow: 0 10px 30px 0 rgba(74, 144, 226, 0.25),
-    0 20px 30px 0 rgba(0, 0, 0, 0.5);
-  transition: transform 0.5s ease-in-out;
-
-  @include breakpoint(m) {
-    padding: 40px;
-  }
-
-  &.s-loading {
-    transform: translate(200%, 10%);
-  }
-}
-
-.invoice-header {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto auto auto auto auto;
-  grid-gap: 16px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid lightgrey;
-
-  @include breakpoint(m) {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto auto;
-  }
-}
-
-.stats {
-  display: flex;
-  margin: 24px 0;
-  border: 2px solid black;
-  padding: 24px;
-
-  & > * {
-    flex: 1 1 0;
-  }
-}
-
-.stat {
-  font-size: 1.3rem;
-  text-align: center;
-  font-weight: 700;
-
-  label {
-    font-size: 1rem;
-    font-weight: 400;
-    display: block;
-  }
-}
-
-.summary-row,
-.invoice-total-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  padding: 16px;
-  font-weight: 700;
-}
-
-.invoice-total-row {
-  grid-template-columns: 1fr;
-
-  @include breakpoint(m) {
-    grid-template-columns: 1fr auto;
-  }
-}
-
-/////////////////////// TASK AND FEE ROW LAYOUTS //////////////////
-.itemrow {
-  border: 2px solid black;
-  border-bottom-width: 0;
-
-  @include breakpoint(m-max) {
-    margin-bottom: 4px;
-    border-bottom-width: 2px;
-  }
-
-  input {
-    padding: 16px;
-    width: 100%;
-  }
-
-  button {
-    padding: 16px;
-  }
-
-  &:last-child {
-    border-bottom-width: 2px;
-  }
-}
-
-.task-header,
-.task {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas: "name name" "a b" ". action";
-  grid-template-rows: auto auto auto;
-
-  @include breakpoint(m) {
-    grid-template-rows: 1fr;
-    grid-template-areas: "name a b action";
-    grid-template-columns: 1fr 20% 20% auto;
-  }
-}
-
-.task-header {
-  @include breakpoint(m-max) {
-    display: none;
-  }
-
-  & span {
-    display: inline-block;
-    background-color: black;
-    -webkit-print-color-adjust: exact;
-    padding: 8px;
-    color: white;
-  }
-}
-
-.name {
-  grid-area: name;
-
-  @include breakpoint(m-max) {
-    border-bottom: 2px solid black;
-  }
-}
-
-.rate,
-.cost,
-.hours,
-.type {
-  border-left: 2px solid black;
-
-  @include breakpoint(m-max) {
-    border-bottom: 2px solid black;
-  }
-
-  input {
-    text-align: right;
-  }
-}
-
-.rate,
-.cost {
-  grid-area: a;
-
-  @include breakpoint(m-max) {
-    border-left: none !important;
-  }
-}
-
-.hours,
-.type {
-  grid-area: b;
-}
-
-.remove {
-  border-left: 2px solid black;
-  grid-area: action;
-
-  button {
-    border-width: 0;
-  }
-}
-
-.payment-instructions {
-  margin-bottom: 16px;
-}
-
-footer {
-  background-color: lightgrey;
-  padding: 16px;
-  margin: 0 -40px -40px -40px;
-  position: sticky;
-  bottom: 0;
-
-  .footer-actions {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    max-width: 1000px;
-    margin: 0 auto;
-    grid-gap: 16px;
   }
 }
 
@@ -448,11 +131,24 @@ footer {
 
   #app {
     margin: 4mm 12mm;
+    display: block;
+    width: calc(100% - 24mm);
+  }
+
+  .page-scroll {
+    overflow: hidden;
+    width: 100%;
   }
 
   .page {
     box-shadow: none;
     padding: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .t-placeholder {
+    display: none;
   }
 
   footer,

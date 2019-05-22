@@ -3,3 +3,24 @@
 @import "./mixins";
 @import "./form-controls";
 @import "./helpers";
+
+.addline-enter-active,
+.addline-leave-active,
+.addline-move {
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.addline-enter {
+  transform: translate3d(100%, 0, 0);
+  opacity: 0;
+}
+
+.addline-enter-to {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+}
+
+.addline-leave-to {
+  transform: translate3d(-100%, 0, 0);
+  opacity: 0;
+}
